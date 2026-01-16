@@ -1,7 +1,9 @@
-goal,diet_type,budget,meal_plan
-Weight Loss,Veg,Low,Rice, Dal, Vegetables, Fruits
-Weight Loss,Non-Veg,Low,Chapati, Eggs, Salad
-Muscle Gain,Veg,Medium,Paneer, Milk, Nuts
-Muscle Gain,Non-Veg,Medium,Chicken, Eggs, Rice
-General Fitness,Veg,Low,Balanced Indian Diet
-General Fitness,Non-Veg,Low,Balanced Mixed Diet
+goal,diet_type,budget,meal_plan,protein,carbs,fats
+Weight Loss,Veg,Low,Chapati + Dal + Vegetables + Fruits,60g,200g,40g
+Weight Loss,Non-Veg,Low,Eggs + Salad + Chicken Soup,80g,150g,35g
+Weight Loss,Veg,Medium,Paneer + Salad + Brown Rice,70g,180g,45g
+Weight Loss,Non-Veg,Medium,Grilled Chicken + Veggies + Rice,90g,170g,40g
+Muscle Gain,Veg,Medium,Paneer + Milk + Nuts + Rice,100g,250g,60g
+Muscle Gain,Non-Veg,Medium,Chicken + Eggs + Rice + Nuts,120g,260g,65g
+General Fitness,Veg,Low,Balanced Indian Diet Plan,70g,220g,50g
+General Fitness,Non-Veg,Low,Balanced Mixed Diet Plan,80g,230g,55g
