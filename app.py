@@ -3,7 +3,7 @@ import pandas as pd
 
 st.title("Personalized Workout & Diet Planner with AI")
 
-st.write("Enter your details to generate a customized plan")
+st.write("Enter your details to generate a customized fitness and diet plan")
 
 # ---------- USER INPUTS ----------
 
@@ -57,33 +57,33 @@ def calorie_requirement(weight, height, age, goal):
 
 weekly_plans = {
     "Weight Loss": [
-        "Monday - 30 min Cardio",
-        "Tuesday - Light Strength Training",
-        "Wednesday - 30 min Brisk Walk",
-        "Thursday - Cardio + Abs",
-        "Friday - Full Body Workout",
-        "Saturday - Yoga or Stretching",
-        "Sunday - Rest"
+        "30 min Cardio",
+        "Light Strength Training",
+        "30 min Brisk Walk",
+        "Cardio + Abs",
+        "Full Body Workout",
+        "Yoga or Stretching",
+        "Rest"
     ],
 
     "Muscle Gain": [
-        "Monday - Chest and Triceps",
-        "Tuesday - Back and Biceps",
-        "Wednesday - Legs",
-        "Thursday - Shoulders",
-        "Friday - Full Body Strength",
-        "Saturday - Core Training",
-        "Sunday - Rest"
+        "Chest and Triceps",
+        "Back and Biceps",
+        "Legs Workout",
+        "Shoulders",
+        "Full Body Strength",
+        "Core Training",
+        "Rest"
     ],
 
     "General Fitness": [
-        "Monday - Jogging",
-        "Tuesday - Yoga",
-        "Wednesday - Strength Training",
-        "Thursday - Cardio",
-        "Friday - Mixed Workout",
-        "Saturday - Outdoor Activity",
-        "Sunday - Rest"
+        "Jogging",
+        "Yoga",
+        "Strength Training",
+        "Cardio",
+        "Mixed Workout",
+        "Outdoor Activity",
+        "Rest"
     ]
 }
 
@@ -94,15 +94,20 @@ if st.button("Generate Plan"):
 
     bmi = calculate_bmi(weight, height)
 
-    st.subheader("Your Health Analysis")
+    st.subheader("Health Analysis")
 
-    st.write("BMI Value:", bmi)
-    st.write("BMI Category:", bmi_category(bmi))
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("**BMI Value:**", bmi)
+
+    with col2:
+        st.write("**BMI Category:**", bmi_category(bmi))
 
     calories = calorie_requirement(weight, height, age, goal)
 
     st.subheader("Daily Calorie Requirement")
-    st.write(round(calories), "kcal per day")
+    st.write(f"Approximately **{round(calories)} kcal per day**")
 
     # Load datasets
     diet_data = pd.read_csv("diet_data.csv")
@@ -114,10 +119,10 @@ if st.button("Generate Plan"):
         (diet_data["budget"] == budget)
     ]
 
-    st.subheader("Recommended Diet Plan")
+    st.subheader("Personalized Diet Recommendation")
 
     if not diet_plan.empty:
-        st.write(diet_plan["meal_plan"].values[0])
+        st.table(diet_plan[["meal_plan", "protein", "carbs", "fats"]])
     else:
         st.write("Balanced healthy diet recommended")
 
@@ -125,7 +130,13 @@ if st.button("Generate Plan"):
 
     plan = weekly_plans.get(goal)
 
-    for day in plan:
-        st.write(day)
+    workout_table = pd.DataFrame({
+        "Day": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "Workout Plan": plan
+    })
 
-    st.success("Your Personalized Plan is Ready")
+    st.table(workout_table)
+
+    st.info("Follow this plan consistently for best results")
+
+    st.success("Your Enhanced Personalized Plan is Ready")
