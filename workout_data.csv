@@ -1,4 +1,4 @@
-goal,plan
-Weight Loss,30 min Cardio + Light Strength Training
-Muscle Gain,Strength Training 5 days a week
-General Fitness,Mixed workout including yoga and cardio
+goal,workout_type,duration
+Weight Loss,Cardio and Strength Mix,30-45 min daily
+Muscle Gain,Heavy Strength Training,45-60 min daily
+General Fitness,Mixed Training,30 min daily
