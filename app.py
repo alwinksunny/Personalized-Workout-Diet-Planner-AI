@@ -5,6 +5,10 @@ st.title("Personalized Workout & Diet Planner with AI")
 
 st.write("Enter your details to generate a customized fitness and diet plan")
 
+st.sidebar.title("Fitness Planner")
+st.sidebar.write("AI Based Personalized Planning System")
+st.sidebar.write("Generate workout and diet plans tailored for students")
+
 # ---------- USER INPUTS ----------
 
 age = st.number_input("Age", 10, 60)
