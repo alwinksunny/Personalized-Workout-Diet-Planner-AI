@@ -26,3 +26,9 @@ Future Enhancements:
 - Mobile app development
 - Wearable device connectivity
 
+## Live Application
+
+You can access the deployed application here:
+
+https://workoutanddiet.streamlit.app
+
