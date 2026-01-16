@@ -3,11 +3,12 @@ import pandas as pd
 
 st.title("Personalized Workout & Diet Planner with AI")
 
-st.write("Enter your details to generate a customized fitness and diet plan")
+# -------- SIDEBAR INFORMATION --------
+st.sidebar.title("Fitness AI Planner")
+st.sidebar.write("Generate personalized workout and diet plans")
+st.sidebar.write("Designed especially for students")
 
-st.sidebar.title("Fitness Planner")
-st.sidebar.write("AI Based Personalized Planning System")
-st.sidebar.write("Generate workout and diet plans tailored for students")
+st.write("Enter your details to generate a customized fitness and diet plan")
 
 # ---------- USER INPUTS ----------
 
@@ -55,6 +56,19 @@ def calorie_requirement(weight, height, age, goal):
         return bmr + 300
     else:
         return bmr
+
+
+def water_intake(weight):
+    return round(weight * 0.033, 2)
+
+
+def step_suggestion(goal):
+    if goal == "Weight Loss":
+        return "10,000 - 12,000 steps per day"
+    elif goal == "Muscle Gain":
+        return "7,000 - 9,000 steps per day"
+    else:
+        return "8,000 - 10,000 steps per day"
 
 
 # ---------- WEEKLY WORKOUT PLANS ----------
@@ -113,9 +127,14 @@ if st.button("Generate Plan"):
     st.subheader("Daily Calorie Requirement")
     st.write(f"Approximately **{round(calories)} kcal per day**")
 
+    # Extra Recommendations
+    st.subheader("Additional Health Recommendations")
+
+    st.write("**Daily Water Intake:**", water_intake(weight), "liters")
+    st.write("**Recommended Step Count:**", step_suggestion(goal))
+
     # Load datasets
     diet_data = pd.read_csv("diet_data.csv")
-    workout_data = pd.read_csv("workout_data.csv")
 
     diet_plan = diet_data[
         (diet_data["goal"] == goal) &
@@ -141,6 +160,31 @@ if st.button("Generate Plan"):
 
     st.table(workout_table)
 
+    # ---- SIMPLE VISUALIZATION ----
+
+    st.subheader("Nutrition Distribution Visualization")
+
+    if not diet_plan.empty:
+        values = [
+            int(diet_plan["protein"].values[0].replace("g","")),
+            int(diet_plan["carbs"].values[0].replace("g","")),
+            int(diet_plan["fats"].values[0].replace("g",""))
+        ]
+
+        chart_data = pd.DataFrame({
+            "Nutrient": ["Protein", "Carbs", "Fats"],
+            "Grams": values
+        })
+
+        st.bar_chart(chart_data.set_index("Nutrient"))
+
     st.info("Follow this plan consistently for best results")
 
-    st.success("Your Enhanced Personalized Plan is Ready")
+    st.success("Your Advanced Personalized Plan is Ready")
+
+    # Download option
+    st.download_button(
+        label="Download Plan Summary",
+        data="Personalized Plan Generated Successfully",
+        file_name="fitness_plan.txt"
+    )
