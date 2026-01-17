@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import time
+import plotly.express as px
+import plotly.graph_objects as go
+
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="AI Fitness Planner", layout="wide")
@@ -199,23 +202,61 @@ if generate:
 
     st.markdown("---")
 
-    st.subheader("📈 Nutrition Breakdown Chart")
+st.subheader("📊 Animated Nutrition Visualization")
 
-    if not diet_plan.empty:
-        values = [
-            int(diet_plan["protein"].values[0].replace("g","")),
-            int(diet_plan["carbs"].values[0].replace("g","")),
-            int(diet_plan["fats"].values[0].replace("g",""))
-        ]
+if not diet_plan.empty:
 
-        chart_data = pd.DataFrame({
-            "Nutrient": ["Protein", "Carbs", "Fats"],
-            "Grams": values
-        })
+    values = [
+        int(diet_plan["protein"].values[0].replace("g","")),
+        int(diet_plan["carbs"].values[0].replace("g","")),
+        int(diet_plan["fats"].values[0].replace("g",""))
+    ]
 
-        st.bar_chart(chart_data.set_index("Nutrient"))
+    nutrients = ["Protein", "Carbs", "Fats"]
+
+    df = pd.DataFrame({
+        "Nutrient": nutrients,
+        "Grams": values
+    })
+
+    # ---- ANIMATED BAR CHART ----
+    fig = px.bar(
+        df,
+        x="Nutrient",
+        y="Grams",
+        color="Nutrient",
+        title="Animated Nutrition Distribution",
+        animation_frame="Grams",
+        range_y=[0, max(values) + 20]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
+
+    # ---- ANIMATED PIE CHART ----
+    pie = px.pie(
+        df,
+        names="Nutrient",
+        values="Grams",
+        title="Diet Composition",
+        hole=0.4
+    )
+
+    st.plotly_chart(pie, use_container_width=True)
+
+    st.markdown("---")
+
+    # ---- GAUGE STYLE CALORIE VISUAL ----
+    gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=round(calories),
+        title={'text': "Daily Calorie Meter"},
+        gauge={'axis': {'range': [0, round(calories) + 500]}}
+    ))
+
+    st.plotly_chart(gauge, use_container_width=True)
+
 
     # Final Celebration Animation
     st.subheader("🎉 Plan Ready!")
