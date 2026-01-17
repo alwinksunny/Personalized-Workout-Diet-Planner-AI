@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import time
-import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="AI Fitness Planner", layout="wide")
@@ -184,13 +184,13 @@ if generate:
 
     st.markdown("---")
 
-    # ================== ANIMATED CHART SECTION ==================
+    # ============ IMPROVED AUTOPLAY ANIMATED CHART ============
 
     st.header("📊 Animated Nutrition Insights")
 
     if not diet_plan.empty:
 
-        with st.spinner("Generating animated charts..."):
+        with st.spinner("Preparing animated visualization..."):
             time.sleep(1)
 
         values = [
@@ -201,31 +201,58 @@ if generate:
 
         nutrients = ["Protein", "Carbs", "Fats"]
 
-        df = pd.DataFrame({
-            "Nutrient": nutrients,
-            "Grams": values
-        })
+        frames = []
 
-        # ---- ANIMATED BAR CHART ----
-        bar = px.bar(
-            df,
-            x="Nutrient",
-            y="Grams",
-            color="Nutrient",
-            title="Animated Nutrition Distribution",
-            animation_frame="Grams",
-            range_y=[0, max(values) + 20]
+        # Create progressive frames for bottom-to-top effect
+        for i in range(1, max(values) + 1):
+            frame_df = pd.DataFrame({
+                "Nutrient": nutrients,
+                "Grams": [min(v, i) for v in values]
+            })
+
+            frames.append(go.Frame(data=[go.Bar(
+                x=frame_df["Nutrient"],
+                y=frame_df["Grams"],
+                marker_color=["#ff6361", "#58508d", "#ffa600"]
+            )]))
+
+        fig = go.Figure(
+            data=[go.Bar(
+                x=nutrients,
+                y=[0, 0, 0],
+                marker_color=["#ff6361", "#58508d", "#ffa600"]
+            )],
+            layout=go.Layout(
+                title="Nutrition Distribution – Animated Growth",
+                yaxis=dict(range=[0, max(values) + 20]),
+                updatemenus=[dict(
+                    type="buttons",
+                    showactive=False,
+                    buttons=[dict(
+                        label="Auto Play",
+                        method="animate",
+                        args=[None, {
+                            "frame": {"duration": 20, "redraw": True},
+                            "fromcurrent": True,
+                            "transition": {"duration": 0}
+                        }]
+                    )]
+                )]
+            ),
+            frames=frames
         )
 
-        st.plotly_chart(bar, use_container_width=True)
+        # AUTOPLAY ON LOAD
+        fig.layout.updatemenus[0].buttons[0].args[1]["transition"] = {"duration": 0}
+
+        st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("---")
 
-        # ---- ANIMATED PIE CHART ----
+        # Pie Chart for extra visualization
         pie = px.pie(
-            df,
-            names="Nutrient",
-            values="Grams",
+            names=nutrients,
+            values=values,
             title="Diet Composition Breakdown",
             hole=0.4
         )
@@ -234,7 +261,6 @@ if generate:
 
         st.markdown("---")
 
-        # ---- CALORIE GAUGE ----
         gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=round(calories),
