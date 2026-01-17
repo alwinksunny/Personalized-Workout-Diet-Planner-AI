@@ -137,6 +137,7 @@ if generate:
 
     st.markdown("---")
 
+    # ---------- DIET PLAN (DIRECT VIEW – NO DROPDOWN) ----------
     st.subheader("🍎 Personalized Diet Plan")
 
     diet_data = pd.read_csv("diet_data.csv")
@@ -147,14 +148,14 @@ if generate:
         (diet_data["budget"] == budget)
     ]
 
-    with st.expander("View Diet Recommendation"):
-        if not diet_plan.empty:
-            st.table(diet_plan[["meal_plan", "protein", "carbs", "fats"]])
-        else:
-            st.write("Balanced healthy diet recommended")
+    if not diet_plan.empty:
+        st.table(diet_plan[["meal_plan", "protein", "carbs", "fats"]])
+    else:
+        st.write("Balanced healthy diet recommended")
 
     st.markdown("---")
 
+    # ---------- WEEKLY WORKOUT PLAN (DIRECT VIEW – NO DROPDOWN) ----------
     st.subheader("🏋 Weekly Workout Plan")
 
     plan = weekly_plans.get(goal)
@@ -164,19 +165,14 @@ if generate:
         "Workout": plan
     })
 
-    with st.expander("View Workout Schedule"):
-        st.table(workout_table)
+    st.table(workout_table)
 
     st.markdown("---")
 
-    # ============ TRUE AUTOPLAY BOTTOM-TO-TOP BAR ANIMATION ============
-
+    # ---------- ANIMATED CHART SECTION ----------
     st.header("📊 Animated Nutrition Insights")
 
     if not diet_plan.empty:
-
-        with st.spinner("Building animated chart..."):
-            time.sleep(1)
 
         values = [
             int(diet_plan["protein"].values[0].replace("g","")),
@@ -190,7 +186,6 @@ if generate:
 
         max_val = max(values)
 
-        # Smooth bottom-to-top animation
         for i in range(0, max_val + 1, 2):
 
             current = [min(v, i) for v in values]
@@ -216,7 +211,6 @@ if generate:
 
         st.markdown("---")
 
-        # Pie chart after animation completes
         pie = px.pie(
             names=nutrients,
             values=values,
@@ -226,9 +220,6 @@ if generate:
 
         st.plotly_chart(pie, use_container_width=True)
 
-        st.markdown("---")
-
-        # Calorie gauge meter
         gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=round(calories),
@@ -239,8 +230,6 @@ if generate:
         st.plotly_chart(gauge, use_container_width=True)
 
     st.markdown("---")
-
-    st.subheader("🎉 Plan Ready!")
 
     st.balloons()
 
