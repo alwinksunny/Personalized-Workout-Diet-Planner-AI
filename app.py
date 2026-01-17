@@ -1,51 +1,46 @@
 import streamlit as st
 import pandas as pd
+import time
 
-# ---------------- PAGE CONFIG ----------------
+# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="AI Fitness Planner", layout="wide")
 
-# ---------------- SIDEBAR INPUTS ----------------
-st.sidebar.title("🏋 Fitness Planner")
+# ---------- SIDEBAR ----------
+st.sidebar.title("🏋 AI Fitness Planner")
 
-st.sidebar.write("Enter your details below")
+st.sidebar.markdown("### Enter Your Details")
 
 age = st.sidebar.number_input("Age", 10, 60)
 weight = st.sidebar.number_input("Weight (kg)", 20, 120)
 height = st.sidebar.number_input("Height (cm)", 100, 200)
 
 goal = st.sidebar.selectbox(
-    "Select Fitness Goal",
+    "Fitness Goal",
     ["Weight Loss", "Muscle Gain", "General Fitness"]
 )
 
-diet = st.sidebar.selectbox(
-    "Diet Preference",
-    ["Veg", "Non-Veg"]
-)
+diet = st.sidebar.selectbox("Diet Preference", ["Veg", "Non-Veg"])
 
-budget = st.sidebar.selectbox(
-    "Budget Level",
-    ["Low", "Medium"]
-)
+budget = st.sidebar.selectbox("Budget Level", ["Low", "Medium"])
 
-time = st.sidebar.selectbox(
+time_available = st.sidebar.selectbox(
     "Daily Available Time",
     ["15 min", "30 min", "45 min", "60 min"]
 )
 
-st.sidebar.write("Click below to generate your plan")
-generate = st.sidebar.button("Generate Plan")
+generate = st.sidebar.button("Generate My Plan")
 
-# ---------------- MAIN TITLE ----------------
+# ---------- TITLE ----------
 st.title("💪 Personalized Workout & Diet Planner with AI")
-st.markdown(
-    "An intelligent system that creates customized fitness and diet plans "
-    "based on your personal goals, budget, and lifestyle."
-)
+
+st.markdown("""
+Welcome to the **AI Powered Student Fitness Planner**  
+Your personal smart assistant for healthy living!
+""")
 
 st.markdown("---")
 
-# ---------------- FUNCTIONS ----------------
+# ---------- FUNCTIONS ----------
 def calculate_bmi(w, h):
     h = h / 100
     return round(w / (h * h), 2)
@@ -75,13 +70,13 @@ def water_intake(weight):
 
 def step_suggestion(goal):
     if goal == "Weight Loss":
-        return "10,000 - 12,000 steps per day"
+        return 12000
     elif goal == "Muscle Gain":
-        return "7,000 - 9,000 steps per day"
+        return 9000
     else:
-        return "8,000 - 10,000 steps per day"
+        return 10000
 
-# ---------------- WEEKLY PLANS ----------------
+# ---------- WORKOUT PLANS ----------
 weekly_plans = {
     "Weight Loss": [
         "30 min Cardio",
@@ -114,13 +109,24 @@ weekly_plans = {
     ]
 }
 
-# ---------------- MAIN PROCESS ----------------
+# ---------- MAIN LOGIC ----------
 if generate:
 
-    st.header("📊 Your Health Summary")
+    with st.spinner("Analyzing your details..."):
+        time.sleep(2)
+
+    st.success("Analysis Complete!")
+
+    # Animation effect
+    progress = st.progress(0)
+    for i in range(100):
+        time.sleep(0.01)
+        progress.progress(i + 1)
 
     bmi = calculate_bmi(weight, height)
     calories = calorie_requirement(weight, height, age, goal)
+
+    st.header("📊 Health Dashboard")
 
     col1, col2, col3 = st.columns(3)
 
@@ -130,16 +136,39 @@ if generate:
 
     st.markdown("---")
 
-    st.header("💧 Lifestyle Recommendations")
+    st.subheader("🎯 Fitness Indicators")
 
     col1, col2 = st.columns(2)
 
-    col1.info(f"**Daily Water Intake:** {water_intake(weight)} liters")
-    col2.info(f"**Recommended Steps:** {step_suggestion(goal)}")
+    with col1:
+        st.write("BMI Progress")
+        st.progress(min(int((bmi / 40) * 100), 100))
+
+    with col2:
+        steps = step_suggestion(goal)
+        st.write("Step Goal Progress")
+        st.progress(int((steps / 15000) * 100))
 
     st.markdown("---")
 
-    # Load dataset
+    # Animated Counter
+    st.subheader("💧 Lifestyle Suggestions")
+
+    water = water_intake(weight)
+
+    counter = st.empty()
+
+    for i in range(1, int(water * 10) + 1):
+        counter.write(f"Recommended Water Intake: {i/10} liters")
+        time.sleep(0.05)
+
+    st.info(f"Final Recommendation: {water} liters of water daily")
+    st.info(f"Daily Step Target: {steps} steps")
+
+    st.markdown("---")
+
+    st.subheader("🍎 Personalized Diet Plan")
+
     diet_data = pd.read_csv("diet_data.csv")
 
     diet_plan = diet_data[
@@ -148,9 +177,7 @@ if generate:
         (diet_data["budget"] == budget)
     ]
 
-    st.header("🍎 Personalized Diet Plan")
-
-    with st.expander("View Diet Details"):
+    with st.expander("View Diet Recommendation"):
         if not diet_plan.empty:
             st.table(diet_plan[["meal_plan", "protein", "carbs", "fats"]])
         else:
@@ -158,21 +185,21 @@ if generate:
 
     st.markdown("---")
 
-    st.header("🏋 Weekly Workout Schedule")
+    st.subheader("🏋 Weekly Workout Plan")
 
     plan = weekly_plans.get(goal)
 
     workout_table = pd.DataFrame({
-        "Day": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-        "Workout Plan": plan
+        "Day": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+        "Workout": plan
     })
 
-    with st.expander("View Workout Plan"):
+    with st.expander("View Workout Schedule"):
         st.table(workout_table)
 
     st.markdown("---")
 
-    st.header("📈 Nutrition Visualization")
+    st.subheader("📈 Nutrition Breakdown Chart")
 
     if not diet_plan.empty:
         values = [
@@ -188,19 +215,24 @@ if generate:
 
         st.bar_chart(chart_data.set_index("Nutrient"))
 
-    st.success("Your Personalized Plan is Generated Successfully")
+    st.markdown("---")
+
+    # Final Celebration Animation
+    st.subheader("🎉 Plan Ready!")
+
+    st.balloons()
+
+    st.success("Your AI Personalized Fitness Plan is Ready to Follow!")
 
     st.download_button(
-        label="Download Plan Summary",
-        data="Personalized Fitness Plan Generated Successfully",
-        file_name="fitness_plan.txt"
+        label="Download My Fitness Report",
+        data="Your AI Generated Fitness Plan is Ready!",
+        file_name="fitness_report.txt"
     )
 
     st.markdown("---")
 
-    st.write(
-        "Developed using Python & Streamlit | AI Powered Student Fitness Planner"
-    )
+    st.write("Built with ❤️ using Python, Streamlit and AI")
 
 else:
-    st.info("Please enter details in the sidebar and click 'Generate Plan'")
+    st.info("Fill details in sidebar and click 'Generate My Plan'")
