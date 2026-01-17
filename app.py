@@ -137,21 +137,6 @@ if generate:
 
     st.markdown("---")
 
-    st.subheader("🎯 Fitness Indicators")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.write("BMI Progress")
-        st.progress(min(int((bmi / 40) * 100), 100))
-
-    with col2:
-        steps = step_suggestion(goal)
-        st.write("Step Goal Progress")
-        st.progress(int((steps / 15000) * 100))
-
-    st.markdown("---")
-
     st.subheader("🍎 Personalized Diet Plan")
 
     diet_data = pd.read_csv("diet_data.csv")
@@ -184,13 +169,13 @@ if generate:
 
     st.markdown("---")
 
-    # ============ IMPROVED AUTOPLAY ANIMATED CHART ============
+    # ============ TRUE AUTOPLAY BOTTOM-TO-TOP BAR ANIMATION ============
 
     st.header("📊 Animated Nutrition Insights")
 
     if not diet_plan.empty:
 
-        with st.spinner("Preparing animated visualization..."):
+        with st.spinner("Building animated chart..."):
             time.sleep(1)
 
         values = [
@@ -201,59 +186,41 @@ if generate:
 
         nutrients = ["Protein", "Carbs", "Fats"]
 
-        frames = []
+        chart_placeholder = st.empty()
 
-        # Create progressive frames for bottom-to-top effect
-        for i in range(1, max(values) + 1):
-            frame_df = pd.DataFrame({
-                "Nutrient": nutrients,
-                "Grams": [min(v, i) for v in values]
-            })
+        max_val = max(values)
 
-            frames.append(go.Frame(data=[go.Bar(
-                x=frame_df["Nutrient"],
-                y=frame_df["Grams"],
-                marker_color=["#ff6361", "#58508d", "#ffa600"]
-            )]))
+        # Smooth bottom-to-top animation
+        for i in range(0, max_val + 1, 2):
 
-        fig = go.Figure(
-            data=[go.Bar(
+            current = [min(v, i) for v in values]
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(
                 x=nutrients,
-                y=[0, 0, 0],
+                y=current,
                 marker_color=["#ff6361", "#58508d", "#ffa600"]
-            )],
-            layout=go.Layout(
-                title="Nutrition Distribution – Animated Growth",
-                yaxis=dict(range=[0, max(values) + 20]),
-                updatemenus=[dict(
-                    type="buttons",
-                    showactive=False,
-                    buttons=[dict(
-                        label="Auto Play",
-                        method="animate",
-                        args=[None, {
-                            "frame": {"duration": 20, "redraw": True},
-                            "fromcurrent": True,
-                            "transition": {"duration": 0}
-                        }]
-                    )]
-                )]
-            ),
-            frames=frames
-        )
+            ))
 
-        # AUTOPLAY ON LOAD
-        fig.layout.updatemenus[0].buttons[0].args[1]["transition"] = {"duration": 0}
+            fig.update_layout(
+                title="Nutrition Distribution (Growing Animation)",
+                yaxis=dict(range=[0, max_val + 20]),
+                transition=dict(duration=0),
+                showlegend=False
+            )
 
-        st.plotly_chart(fig, use_container_width=True)
+            chart_placeholder.plotly_chart(fig, use_container_width=True)
+
+            time.sleep(0.02)
 
         st.markdown("---")
 
-        # Pie Chart for extra visualization
+        # Pie chart after animation completes
         pie = px.pie(
             names=nutrients,
             values=values,
-            title="Diet Composition Breakdown",
+            title="Final Diet Composition",
             hole=0.4
         )
 
@@ -261,6 +228,7 @@ if generate:
 
         st.markdown("---")
 
+        # Calorie gauge meter
         gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=round(calories),
