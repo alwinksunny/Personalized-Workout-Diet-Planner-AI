@@ -4,7 +4,6 @@ import time
 import plotly.express as px
 import plotly.graph_objects as go
 
-
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="AI Fitness Planner", layout="wide")
 
@@ -38,7 +37,7 @@ st.title("💪 Personalized Workout & Diet Planner with AI")
 
 st.markdown("""
 Welcome to the **AI Powered Student Fitness Planner**  
-Your personal smart assistant for healthy living!
+Smart personalized plans with animated insights and analytics.
 """)
 
 st.markdown("---")
@@ -120,7 +119,6 @@ if generate:
 
     st.success("Analysis Complete!")
 
-    # Animation effect
     progress = st.progress(0)
     for i in range(100):
         time.sleep(0.01)
@@ -151,22 +149,6 @@ if generate:
         steps = step_suggestion(goal)
         st.write("Step Goal Progress")
         st.progress(int((steps / 15000) * 100))
-
-    st.markdown("---")
-
-    # Animated Counter
-    st.subheader("💧 Lifestyle Suggestions")
-
-    water = water_intake(weight)
-
-    counter = st.empty()
-
-    for i in range(1, int(water * 10) + 1):
-        counter.write(f"Recommended Water Intake: {i/10} liters")
-        time.sleep(0.05)
-
-    st.info(f"Final Recommendation: {water} liters of water daily")
-    st.info(f"Daily Step Target: {steps} steps")
 
     st.markdown("---")
 
@@ -202,63 +184,68 @@ if generate:
 
     st.markdown("---")
 
-st.subheader("📊 Animated Nutrition Visualization")
+    # ================== ANIMATED CHART SECTION ==================
 
-if not diet_plan.empty:
+    st.header("📊 Animated Nutrition Insights")
 
-    values = [
-        int(diet_plan["protein"].values[0].replace("g","")),
-        int(diet_plan["carbs"].values[0].replace("g","")),
-        int(diet_plan["fats"].values[0].replace("g",""))
-    ]
+    if not diet_plan.empty:
 
-    nutrients = ["Protein", "Carbs", "Fats"]
+        with st.spinner("Generating animated charts..."):
+            time.sleep(1)
 
-    df = pd.DataFrame({
-        "Nutrient": nutrients,
-        "Grams": values
-    })
+        values = [
+            int(diet_plan["protein"].values[0].replace("g","")),
+            int(diet_plan["carbs"].values[0].replace("g","")),
+            int(diet_plan["fats"].values[0].replace("g",""))
+        ]
 
-    # ---- ANIMATED BAR CHART ----
-    fig = px.bar(
-        df,
-        x="Nutrient",
-        y="Grams",
-        color="Nutrient",
-        title="Animated Nutrition Distribution",
-        animation_frame="Grams",
-        range_y=[0, max(values) + 20]
-    )
+        nutrients = ["Protein", "Carbs", "Fats"]
 
-    st.plotly_chart(fig, use_container_width=True)
+        df = pd.DataFrame({
+            "Nutrient": nutrients,
+            "Grams": values
+        })
+
+        # ---- ANIMATED BAR CHART ----
+        bar = px.bar(
+            df,
+            x="Nutrient",
+            y="Grams",
+            color="Nutrient",
+            title="Animated Nutrition Distribution",
+            animation_frame="Grams",
+            range_y=[0, max(values) + 20]
+        )
+
+        st.plotly_chart(bar, use_container_width=True)
+
+        st.markdown("---")
+
+        # ---- ANIMATED PIE CHART ----
+        pie = px.pie(
+            df,
+            names="Nutrient",
+            values="Grams",
+            title="Diet Composition Breakdown",
+            hole=0.4
+        )
+
+        st.plotly_chart(pie, use_container_width=True)
+
+        st.markdown("---")
+
+        # ---- CALORIE GAUGE ----
+        gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=round(calories),
+            title={'text': "Daily Calorie Meter"},
+            gauge={'axis': {'range': [0, round(calories) + 500]}}
+        ))
+
+        st.plotly_chart(gauge, use_container_width=True)
 
     st.markdown("---")
 
-    # ---- ANIMATED PIE CHART ----
-    pie = px.pie(
-        df,
-        names="Nutrient",
-        values="Grams",
-        title="Diet Composition",
-        hole=0.4
-    )
-
-    st.plotly_chart(pie, use_container_width=True)
-
-    st.markdown("---")
-
-    # ---- GAUGE STYLE CALORIE VISUAL ----
-    gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=round(calories),
-        title={'text': "Daily Calorie Meter"},
-        gauge={'axis': {'range': [0, round(calories) + 500]}}
-    ))
-
-    st.plotly_chart(gauge, use_container_width=True)
-
-
-    # Final Celebration Animation
     st.subheader("🎉 Plan Ready!")
 
     st.balloons()
